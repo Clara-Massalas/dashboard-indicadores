@@ -4,61 +4,73 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard de Indicadores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
 <style>
   :root{
-    --bg:#0f1420; --panel:#161d2e; --panel2:#1c2436; --border:#293349;
-    --text:#eef1f8; --muted:#9aa5bd; --accent:#5b8def; --accent2:#7fd1ae;
-    --danger:#e5677a; --warn:#e5b95b;
+    --maroon:#773F3F; --maroon-light:#9C6262;
+    --teal:#1F4242; --teal-light:#3E6B6B;
+    --lime:#8FC93E; --lime-pale:#BDF567;
+    --clay:#B87333; --olive:#8FA83E;
+    --bg:#F7F8F5; --panel:#FFFFFF; --panel2:#FBFAF6; --border:#E3E7E1;
+    --text:#1F4242; --muted:#5B7070;
+    --danger:#9C4A3F; --warn:#B87333;
   }
   *{box-sizing:border-box;}
   body{
-    margin:0; font-family:'Segoe UI',Roboto,Arial,sans-serif;
-    background:linear-gradient(180deg,#0b0f19,#0f1420 300px); color:var(--text);
-    padding:24px 32px 60px;
+    margin:0; font-family:'Sora',-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+    background:var(--bg); color:var(--text);
+    padding:0 0 60px;
   }
+  .page-inner{padding:0 32px;}
   header{
-    display:flex; justify-content:space-between; align-items:flex-start;
+    display:flex; justify-content:space-between; align-items:center;
     flex-wrap:wrap; gap:16px; margin-bottom:24px;
-    border-bottom:1px solid var(--border); padding-bottom:20px;
+    background:var(--maroon); padding:18px 32px;
   }
-  header h1{margin:0 0 4px; font-size:26px; font-weight:700;}
-  header p{margin:0; color:var(--muted); font-size:14px;}
+  header .brand{display:flex; align-items:center; gap:16px;}
+  header .brand img{height:34px; display:block;}
+  header .brand-divider{width:1px; height:32px; background:rgba(255,255,255,.3);}
+  header h1{margin:0 0 2px; font-size:19px; font-weight:700; color:#fff;}
+  header p{margin:0; color:rgba(255,255,255,.75); font-size:13px;}
   .status{
-    text-align:right; font-size:13px; color:var(--muted); display:flex;
+    text-align:right; font-size:13px; color:rgba(255,255,255,.85); display:flex;
     flex-direction:column; gap:6px; align-items:flex-end;
   }
   .status .dot{
     display:inline-block; width:8px; height:8px; border-radius:50%;
-    background:var(--accent2); margin-right:6px; box-shadow:0 0 8px var(--accent2);
+    background:var(--lime-pale); margin-right:6px; box-shadow:0 0 8px var(--lime-pale);
   }
   #refreshBtn{
-    background:var(--panel2); border:1px solid var(--border); color:var(--text);
-    padding:6px 14px; border-radius:8px; cursor:pointer; font-size:13px;
+    background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.3); color:#fff;
+    padding:6px 14px; border-radius:8px; cursor:pointer; font-size:13px; font-family:inherit;
   }
-  #refreshBtn:hover{border-color:var(--accent);}
+  #refreshBtn:hover{background:rgba(255,255,255,.22);}
   .tabs{display:flex; gap:8px; margin-bottom:28px; flex-wrap:wrap;}
   .tab{
     padding:8px 16px; border-radius:20px; font-size:13px; border:1px solid var(--border);
+    background:var(--panel); color:var(--text);
   }
-  .tab.active{background:var(--accent); color:#fff; border-color:var(--accent); font-weight:600;}
-  .tab.disabled{color:var(--muted); opacity:.5;}
+  .tab.active{background:var(--teal); color:#fff; border-color:var(--teal); font-weight:600;}
+  .tab.disabled{color:var(--muted); opacity:.6;}
   section.indicator{
     background:var(--panel); border:1px solid var(--border); border-radius:14px;
-    padding:22px 24px; margin-bottom:24px;
+    padding:22px 24px; margin-bottom:24px; box-shadow:0 1px 3px rgba(31,66,66,.06);
   }
   .ind-header{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px;}
-  .ind-header h2{margin:0; font-size:18px;}
+  .ind-header h2{margin:0; font-size:18px; color:var(--teal); font-weight:700;}
   .ind-header .badge{
     font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);
   }
   .kpis{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:18px;}
   .kpi{
     background:var(--panel2); border:1px solid var(--border); border-radius:10px;
-    padding:12px 18px; min-width:150px;
+    padding:12px 18px; min-width:150px; border-left:4px solid var(--lime);
   }
   .kpi .label{font-size:12px; color:var(--muted); margin-bottom:4px;}
-  .kpi .value{font-size:22px; font-weight:700;}
+  .kpi .value{font-size:22px; font-weight:700; color:var(--teal);}
   .charts{display:grid; grid-template-columns:1.6fr 1fr; gap:20px;}
   @media (max-width:900px){.charts{grid-template-columns:1fr;}}
   .chart-box{background:var(--panel2); border:1px solid var(--border); border-radius:10px; padding:14px;}
@@ -66,7 +78,7 @@
   .chart-wrap{position:relative; height:260px;}
   footer{color:var(--muted); font-size:12px; text-align:center; margin-top:20px;}
   .error-banner{
-    background:#3a1f26; border:1px solid var(--danger); color:#f7c8d0;
+    background:#f6e6e2; border:1px solid var(--danger); color:#7a3226;
     padding:12px 16px; border-radius:10px; margin-bottom:20px; font-size:13px; display:none;
   }
 </style>
@@ -74,9 +86,13 @@
 <body>
 
 <header>
-  <div>
-    <h1>Dashboard de Indicadores</h1>
-    <p>Reunião de Indicadores Mensal — Administrativo</p>
+  <div class="brand">
+    <img src="https://massalas.com.br/2025/wp-content/themes/msl-theme/assets/img/logo.svg" alt="Massalas">
+    <div class="brand-divider"></div>
+    <div>
+      <h1>Dashboard de Indicadores</h1>
+      <p>Reunião de Indicadores Mensal — Administrativo</p>
+    </div>
   </div>
   <div class="status">
     <div><span class="dot"></span><span id="lastUpdate">carregando...</span></div>
@@ -85,6 +101,7 @@
   </div>
 </header>
 
+<div class="page-inner">
 <div class="tabs">
   <div class="tab active">Administrativo</div>
   <div class="tab disabled">Comercial (em breve)</div>
@@ -169,6 +186,7 @@
 </section>
 
 <footer>Dados vindos automaticamente do Google Sheets · atualização a cada 20 minutos</footer>
+</div>
 
 <script>
 const SHEET_ID = '1Fm8h4423iAFd3t-htj0Z62XM6oEnJs15Zp-iEHzdI3I';
@@ -381,20 +399,21 @@ function barChart(canvasId, labels, data, opts = {}){
   const ctx = document.getElementById(canvasId).getContext('2d');
   charts[canvasId] = new Chart(ctx, {
     type: 'bar',
-    data: { labels, datasets: [{ data, backgroundColor: opts.color || '#5b8def', borderRadius: 6, maxBarThickness: 46 }] },
+    data: { labels, datasets: [{ data, backgroundColor: opts.color || '#1F4242', borderRadius: 6, maxBarThickness: 46 }] },
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
         tooltip: {
           callbacks: opts.tooltipCallbacks || {},
-          backgroundColor: '#1c2436', borderColor: '#293349', borderWidth: 1,
-          titleColor: '#eef1f8', bodyColor: '#cfd6e6', padding: 10
+          backgroundColor: '#1F4242', borderColor: '#3E6B6B', borderWidth: 1,
+          titleColor: '#fff', bodyColor: '#E3EDE9', padding: 10,
+          titleFont: { family: 'Sora' }, bodyFont: { family: 'Sora' }
         }
       },
       scales: {
-        x: { ticks: { color: '#9aa5bd' }, grid: { color: '#22293b' } },
-        y: { ticks: { color: '#9aa5bd' }, grid: { color: '#22293b' }, beginAtZero: true }
+        x: { ticks: { color: '#5B7070', font: { family: 'Sora' } }, grid: { color: '#E3E7E1' } },
+        y: { ticks: { color: '#5B7070', font: { family: 'Sora' } }, grid: { color: '#E3E7E1' }, beginAtZero: true }
       }
     }
   });
@@ -410,20 +429,20 @@ function render(rows){
   // Indicador 1
   const i1 = parseIndicador1(rows, bounds);
   document.getElementById('kpi1-atual').textContent = i1.atual ?? '—';
-  barChart('chart1-mensal', MESES_ABREV, MESES.map(m => i1.values[m]), { color: '#5b8def' });
-  barChart('chart1-trimestral', ['Q1','Q2','Q3','Q4'], i1.quarterAvg.map(v => v !== null ? Math.round(v*10)/10 : null), { color: '#7fd1ae' });
+  barChart('chart1-mensal', MESES_ABREV, MESES.map(m => i1.values[m]), { color: '#1F4242' });
+  barChart('chart1-trimestral', ['Q1','Q2','Q3','Q4'], i1.quarterAvg.map(v => v !== null ? Math.round(v*10)/10 : null), { color: '#8FC93E' });
 
   // Indicador 2
   const i2 = parseIndicador2(rows, bounds);
   document.getElementById('kpi2-atual').textContent = i2.atual ?? '—';
-  barChart('chart2-mensal', MESES_ABREV, MESES.map(m => i2.values[m]), { color: '#5b8def' });
-  barChart('chart2-trimestral', ['Q1','Q2','Q3','Q4'], i2.quarterAvg.map(v => v !== null ? Math.round(v*10)/10 : null), { color: '#7fd1ae' });
+  barChart('chart2-mensal', MESES_ABREV, MESES.map(m => i2.values[m]), { color: '#3E6B6B' });
+  barChart('chart2-trimestral', ['Q1','Q2','Q3','Q4'], i2.quarterAvg.map(v => v !== null ? Math.round(v*10)/10 : null), { color: '#8FC93E' });
 
   // Indicador 3
   const i3 = parseIndicador3(rows, bounds);
   document.getElementById('kpi3-total').textContent = i3.totalAnual;
   barChart('chart3-mensal', MESES_ABREV, MESES.map(m => i3.values[m]), {
-    color: '#e5677a',
+    color: '#773F3F',
     tooltipCallbacks: {
       label: (ctx) => {
         const mes = MESES[ctx.dataIndex];
@@ -433,13 +452,13 @@ function render(rows){
       }
     }
   });
-  barChart('chart3-trimestral', ['Q1','Q2','Q3','Q4'], i3.quarterSum, { color: '#e5677a' });
+  barChart('chart3-trimestral', ['Q1','Q2','Q3','Q4'], i3.quarterSum, { color: '#9C6262' });
 
   // Indicador 4
   const i4 = parseIndicador4(rows, bounds);
   document.getElementById('kpi4-total').textContent = fmtBRL(i4.totalAnual);
   barChart('chart4-mensal', MESES_ABREV, MESES.map(m => i4.values[m]), {
-    color: '#e5b95b',
+    color: '#B87333',
     tooltipCallbacks: {
       label: (ctx) => {
         const mes = MESES[ctx.dataIndex];
@@ -452,7 +471,7 @@ function render(rows){
     }
   });
   barChart('chart4-trimestral', ['Q1','Q2','Q3','Q4'], i4.quarterSum, {
-    color: '#e5b95b',
+    color: '#B87333',
     tooltipCallbacks: { label: (ctx) => fmtBRL(ctx.parsed.y) }
   });
 
@@ -460,7 +479,7 @@ function render(rows){
   const i5 = parseIndicador5(rows, bounds);
   document.getElementById('kpi5-total').textContent = i5.totalAnual;
   barChart('chart5-mensal', MESES_ABREV, MESES.map(m => i5.values[m]), {
-    color: '#b48ce0',
+    color: '#8FA83E',
     tooltipCallbacks: {
       label: (ctx) => {
         const mes = MESES[ctx.dataIndex];
