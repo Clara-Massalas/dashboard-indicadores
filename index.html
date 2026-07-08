@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard de Indicadores</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#0f1420; --panel:#161d2e; --panel2:#1c2436; --border:#293349;
+    --text:#eef1f8; --muted:#9aa5bd; --accent:#5b8def; --accent2:#7fd1ae;
+    --danger:#e5677a; --warn:#e5b95b;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'Segoe UI',Roboto,Arial,sans-serif;
+    background:linear-gradient(180deg,#0b0f19,#0f1420 300px); color:var(--text);
+    padding:24px 32px 60px;
+  }
+  header{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    flex-wrap:wrap; gap:16px; margin-bottom:24px;
+    border-bottom:1px solid var(--border); padding-bottom:20px;
+  }
+  header h1{margin:0 0 4px; font-size:26px; font-weight:700;}
+  header p{margin:0; color:var(--muted); font-size:14px;}
+  .status{
+    text-align:right; font-size:13px; color:var(--muted); display:flex;
+    flex-direction:column; gap:6px; align-items:flex-end;
+  }
+  .status .dot{
+    display:inline-block; width:8px; height:8px; border-radius:50%;
+    background:var(--accent2); margin-right:6px; box-shadow:0 0 8px var(--accent2);
+  }
+  #refreshBtn{
+    background:var(--panel2); border:1px solid var(--border); color:var(--text);
+    padding:6px 14px; border-radius:8px; cursor:pointer; font-size:13px;
+  }
+  #refreshBtn:hover{border-color:var(--accent);}
+  .tabs{display:flex; gap:8px; margin-bottom:28px; flex-wrap:wrap;}
+  .tab{
+    padding:8px 16px; border-radius:20px; font-size:13px; border:1px solid var(--border);
+  }
+  .tab.active{background:var(--accent); color:#fff; border-color:var(--accent); font-weight:600;}
+  .tab.disabled{color:var(--muted); opacity:.5;}
+  section.indicator{
+    background:var(--panel); border:1px solid var(--border); border-radius:14px;
+    padding:22px 24px; margin-bottom:24px;
+  }
+  .ind-header{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px;}
+  .ind-header h2{margin:0; font-size:18px;}
+  .ind-header .badge{
+    font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);
+  }
+  .kpis{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:18px;}
+  .kpi{
+    background:var(--panel2); border:1px solid var(--border); border-radius:10px;
+    padding:12px 18px; min-width:150px;
+  }
+  .kpi .label{font-size:12px; color:var(--muted); margin-bottom:4px;}
+  .kpi .value{font-size:22px; font-weight:700;}
+  .charts{display:grid; grid-template-columns:1.6fr 1fr; gap:20px;}
+  @media (max-width:900px){.charts{grid-template-columns:1fr;}}
+  .chart-box{background:var(--panel2); border:1px solid var(--border); border-radius:10px; padding:14px;}
+  .chart-box h3{margin:0 0 10px; font-size:13px; color:var(--muted); font-weight:600;}
+  .chart-wrap{position:relative; height:260px;}
+  footer{color:var(--muted); font-size:12px; text-align:center; margin-top:20px;}
+  .error-banner{
+    background:#3a1f26; border:1px solid var(--danger); color:#f7c8d0;
+    padding:12px 16px; border-radius:10px; margin-bottom:20px; font-size:13px; display:none;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Dashboard de Indicadores</h1>
+    <p>Reunião de Indicadores Mensal — Administrativo</p>
+  </div>
+  <div class="status">
+    <div><span class="dot"></span><span id="lastUpdate">carregando...</span></div>
+    <div id="nextUpdate">próxima atualização em --:--</div>
+    <button id="refreshBtn" onclick="manualRefresh()">Atualizar agora</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active">Administrativo</div>
+  <div class="tab disabled">Comercial (em breve)</div>
+  <div class="tab disabled">Financeiro (em breve)</div>
+  <div class="tab disabled">Operacional (em breve)</div>
+</div>
+
+<div class="error-banner" id="errorBanner"></div>
+
+<!-- INDICADOR 1 -->
+<section class="indicator">
+  <div class="ind-header">
+    <h2>1. Contratos Ativos</h2>
+    <span class="badge">Indicador 1 · 2026</span>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="label">Contratos ativos (atual)</div><div class="value" id="kpi1-atual">—</div></div>
+  </div>
+  <div class="charts">
+    <div class="chart-box"><h3>Mês a mês</h3><div class="chart-wrap"><canvas id="chart1-mensal"></canvas></div></div>
+    <div class="chart-box"><h3>Média trimestral</h3><div class="chart-wrap"><canvas id="chart1-trimestral"></canvas></div></div>
+  </div>
+</section>
+
+<!-- INDICADOR 2 -->
+<section class="indicator">
+  <div class="ind-header">
+    <h2>2. Contratos Ativos por Colaborador do Administrativo</h2>
+    <span class="badge">Indicador 2 · 2026</span>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="label">Média atual por colaborador</div><div class="value" id="kpi2-atual">—</div></div>
+  </div>
+  <div class="charts">
+    <div class="chart-box"><h3>Mês a mês</h3><div class="chart-wrap"><canvas id="chart2-mensal"></canvas></div></div>
+    <div class="chart-box"><h3>Média trimestral</h3><div class="chart-wrap"><canvas id="chart2-trimestral"></canvas></div></div>
+  </div>
+</section>
+
+<!-- INDICADOR 3 -->
+<section class="indicator">
+  <div class="ind-header">
+    <h2>3. Quantidade de Perda de Contratos</h2>
+    <span class="badge">Indicador 3 · 2026 · passe o mouse nas barras para ver os clientes</span>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="label">Total anual</div><div class="value" id="kpi3-total">—</div></div>
+  </div>
+  <div class="charts">
+    <div class="chart-box"><h3>Mês a mês</h3><div class="chart-wrap"><canvas id="chart3-mensal"></canvas></div></div>
+    <div class="chart-box"><h3>Total por trimestre</h3><div class="chart-wrap"><canvas id="chart3-trimestral"></canvas></div></div>
+  </div>
+</section>
+
+<!-- INDICADOR 4 -->
+<section class="indicator">
+  <div class="ind-header">
+    <h2>4. Quantidade de Perda de Contratos em R$</h2>
+    <span class="badge">Indicador 4 · 2026 · passe o mouse nas barras para ver clientes e valores</span>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="label">Total anual perdido</div><div class="value" id="kpi4-total">—</div></div>
+  </div>
+  <div class="charts">
+    <div class="chart-box"><h3>Mês a mês (R$)</h3><div class="chart-wrap"><canvas id="chart4-mensal"></canvas></div></div>
+    <div class="chart-box"><h3>Total por trimestre (R$)</h3><div class="chart-wrap"><canvas id="chart4-trimestral"></canvas></div></div>
+  </div>
+</section>
+
+<!-- INDICADOR 5 -->
+<section class="indicator">
+  <div class="ind-header">
+    <h2>5. Reclamações e Ocorrências em Clientes</h2>
+    <span class="badge">Indicador 5 · 2026 · passe o mouse nas barras para ver detalhes</span>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="label">Total de ocorrências no ano</div><div class="value" id="kpi5-total">—</div></div>
+  </div>
+  <div class="charts" style="grid-template-columns:1fr;">
+    <div class="chart-box"><h3>Mês a mês</h3><div class="chart-wrap"><canvas id="chart5-mensal"></canvas></div></div>
+  </div>
+</section>
+
+<footer>Dados vindos automaticamente do Google Sheets · atualização a cada 20 minutos</footer>
+
+<script>
+const SHEET_ID = '1Fm8h4423iAFd3t-htj0Z62XM6oEnJs15Zp-iEHzdI3I';
+const GID = '526094978';
+const REFRESH_MS = 20 * 60 * 1000;
+
+const MESES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const MESES_ABREV = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+const TRIMESTRES = [["Janeiro","Fevereiro","Março"],["Abril","Maio","Junho"],["Julho","Agosto","Setembro"],["Outubro","Novembro","Dezembro"]];
+
+const charts = {};
+let countdownTimer = null;
+let nextRefreshAt = null;
+
+function fmtBRL(n){
+  if (n === null || n === undefined || isNaN(n)) return 'R$ 0,00';
+  return n.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+}
+
+function cellVal(row, idx){
+  if (!row || !row.c || !row.c[idx]) return null;
+  return row.c[idx].v;
+}
+
+// ---- JSONP loader (avoids CORS entirely) ----
+function loadSheet(){
+  return new Promise((resolve, reject) => {
+    const cbName = 'gvizCallback_' + Date.now();
+    const scriptId = 'gviz-script';
+    const old = document.getElementById(scriptId);
+    if (old) old.remove();
+
+    window[cbName] = function(json){
+      delete window[cbName];
+      script.remove();
+      resolve(json);
+    };
+
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${GID}&headers=0&tqx=out:json;responseHandler:${cbName}&_=${Date.now()}`;
+    const script = document.createElement('script');
+    script.id = scriptId;
+    script.src = url;
+    script.onerror = () => reject(new Error('Falha ao carregar dados da planilha.'));
+    setTimeout(() => { if (window[cbName]) reject(new Error('Tempo esgotado ao buscar a planilha.')); }, 15000);
+    document.body.appendChild(script);
+  });
+}
+
+// ---- Locate INDICADOR N blocks ----
+function findBlocks(rows){
+  const markers = {};
+  rows.forEach((row, i) => {
+    if (!row || !row.c) return;
+    row.c.forEach(cell => {
+      if (cell && typeof cell.v === 'string') {
+        const m = cell.v.trim().match(/^INDICADOR (\d)/);
+        if (m && !(m[1] in markers)) markers[m[1]] = i;
+      }
+    });
+  });
+  const order = Object.keys(markers).map(Number).sort((a,b)=>a-b);
+  const bounds = {};
+  order.forEach((num, idx) => {
+    const start = markers[num];
+    const end = idx+1 < order.length ? markers[order[idx+1]] : rows.length;
+    bounds[num] = [start, end];
+  });
+  return bounds;
+}
+
+// Groups rows in a block by month, carrying forward the month across
+// "continuation" rows (where the Mês cell is blank, e.g. multiple clients).
+function groupByMonth(rows, start, end, cols){
+  const monthly = {};
+  let current = null;
+  for (let i = start; i < end; i++){
+    const row = rows[i];
+    if (!row || !row.c) continue;
+    const mesRaw = cellVal(row, 4);
+    const mes = typeof mesRaw === 'string' ? mesRaw.trim() : null;
+    if (mes && MESES.includes(mes)){
+      current = mes;
+      if (!monthly[current]) monthly[current] = [];
+    }
+    if (!current) continue;
+    const vals = cols.map(c => cellVal(row, c));
+    if (vals.some(v => v !== null && v !== '')) {
+      monthly[current].push(vals);
+    }
+  }
+  return monthly;
+}
+
+function firstNonNull(monthly, colIdx){
+  for (const mes of MESES){
+    const entries = monthly[mes];
+    if (!entries) continue;
+    for (const e of entries){
+      if (e[colIdx] !== null && e[colIdx] !== '' && e[colIdx] !== '-') return e[colIdx];
+    }
+  }
+  return null;
+}
+
+function quarterAverage(monthlyValues){
+  return TRIMESTRES.map(meses => {
+    const vals = meses.map(m => monthlyValues[m]).filter(v => v !== null && v !== undefined);
+    if (!vals.length) return null;
+    return vals.reduce((a,b)=>a+b,0) / vals.length;
+  });
+}
+
+function quarterSum(monthlyValues){
+  return TRIMESTRES.map(meses => {
+    const vals = meses.map(m => monthlyValues[m]).filter(v => v !== null && v !== undefined);
+    if (!vals.length) return null;
+    return vals.reduce((a,b)=>a+b,0);
+  });
+}
+
+// ---- Parse each indicator ----
+function parseIndicador1(rows, bounds){
+  const [s,e] = bounds['1'];
+  const monthly = groupByMonth(rows, s, e, [5,6]);
+  const values = {};
+  MESES.forEach(m => { const ent = monthly[m]; values[m] = ent && ent[0] && typeof ent[0][0] === 'number' ? ent[0][0] : null; });
+  const atual = firstNonNull(monthly, 1);
+  return { values, atual, quarterAvg: quarterAverage(values) };
+}
+
+function parseIndicador2(rows, bounds){
+  const [s,e] = bounds['2'];
+  const monthly = groupByMonth(rows, s, e, [5,6]);
+  const values = {};
+  MESES.forEach(m => { const ent = monthly[m]; values[m] = ent && ent[0] && typeof ent[0][0] === 'number' ? ent[0][0] : null; });
+  const atual = firstNonNull(monthly, 1);
+  return { values, atual, quarterAvg: quarterAverage(values) };
+}
+
+function parseIndicador3(rows, bounds){
+  const [s,e] = bounds['3'];
+  const monthly = groupByMonth(rows, s, e, [5,6,7]);
+  const values = {}, clientes = {};
+  MESES.forEach(m => {
+    const ent = monthly[m] && monthly[m][0];
+    values[m] = ent && typeof ent[0] === 'number' ? ent[0] : 0;
+    const clienteStr = ent ? ent[1] : null;
+    clientes[m] = (clienteStr && clienteStr !== '-') ? clienteStr : null;
+  });
+  const totalAnual = firstNonNull(monthly, 2) ?? 0;
+  return { values, clientes, totalAnual, quarterSum: quarterSum(values) };
+}
+
+function parseIndicador4(rows, bounds){
+  const [s,e] = bounds['4'];
+  const monthly = groupByMonth(rows, s, e, [5,6,7,8]);
+  const values = {}, detalhes = {};
+  MESES.forEach(m => {
+    const entries = monthly[m] || [];
+    const totalMensal = firstNonNull({[m]: entries}, 2);
+    values[m] = typeof totalMensal === 'number' ? totalMensal : 0;
+    const clientes = entries
+      .filter(en => en[0] && en[0] !== '-')
+      .map(en => ({ nome: en[0], valor: typeof en[1] === 'number' ? en[1] : null }));
+    detalhes[m] = clientes;
+  });
+  const totalAnual = firstNonNull(monthly, 3) ?? 0;
+  return { values, detalhes, totalAnual, quarterSum: quarterSum(values) };
+}
+
+function parseIndicador5(rows, bounds){
+  const [s,e] = bounds['5'];
+  const monthly = groupByMonth(rows, s, e, [5,6]);
+  const values = {}, detalhes = {};
+  MESES.forEach(m => {
+    const entries = monthly[m] || [];
+    const ocorrencias = entries
+      .filter(en => en[0] && en[0] !== '-')
+      .map(en => ({ cliente: en[0], reclamacao: en[1] }));
+    detalhes[m] = ocorrencias;
+    values[m] = ocorrencias.length;
+  });
+  const totalAnual = MESES.reduce((sum,m) => sum + (values[m]||0), 0);
+  return { values, detalhes, totalAnual };
+}
+
+// ---- Chart helpers ----
+function destroyChart(id){ if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+function barChart(canvasId, labels, data, opts = {}){
+  destroyChart(canvasId);
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  charts[canvasId] = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets: [{ data, backgroundColor: opts.color || '#5b8def', borderRadius: 6, maxBarThickness: 46 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: opts.tooltipCallbacks || {},
+          backgroundColor: '#1c2436', borderColor: '#293349', borderWidth: 1,
+          titleColor: '#eef1f8', bodyColor: '#cfd6e6', padding: 10
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#9aa5bd' }, grid: { color: '#22293b' } },
+        y: { ticks: { color: '#9aa5bd' }, grid: { color: '#22293b' }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+// ---- Render ----
+function render(rows){
+  const bounds = findBlocks(rows);
+  if (!bounds['1'] || !bounds['2'] || !bounds['3'] || !bounds['4'] || !bounds['5']) {
+    throw new Error('Não foi possível localizar todos os indicadores na planilha (estrutura pode ter mudado).');
+  }
+
+  // Indicador 1
+  const i1 = parseIndicador1(rows, bounds);
+  document.getElementById('kpi1-atual').textContent = i1.atual ?? '—';
+  barChart('chart1-mensal', MESES_ABREV, MESES.map(m => i1.values[m]), { color: '#5b8def' });
+  barChart('chart1-trimestral', ['Q1','Q2','Q3','Q4'], i1.quarterAvg.map(v => v !== null ? Math.round(v*10)/10 : null), { color: '#7fd1ae' });
+
+  // Indicador 2
+  const i2 = parseIndicador2(rows, bounds);
+  document.getElementById('kpi2-atual').textContent = i2.atual ?? '—';
+  barChart('chart2-mensal', MESES_ABREV, MESES.map(m => i2.values[m]), { color: '#5b8def' });
+  barChart('chart2-trimestral', ['Q1','Q2','Q3','Q4'], i2.quarterAvg.map(v => v !== null ? Math.round(v*10)/10 : null), { color: '#7fd1ae' });
+
+  // Indicador 3
+  const i3 = parseIndicador3(rows, bounds);
+  document.getElementById('kpi3-total').textContent = i3.totalAnual;
+  barChart('chart3-mensal', MESES_ABREV, MESES.map(m => i3.values[m]), {
+    color: '#e5677a',
+    tooltipCallbacks: {
+      label: (ctx) => {
+        const mes = MESES[ctx.dataIndex];
+        const qtd = 'Perdas: ' + ctx.parsed.y;
+        const cli = i3.clientes[mes];
+        return cli ? [qtd, 'Cliente(s): ' + cli] : qtd;
+      }
+    }
+  });
+  barChart('chart3-trimestral', ['Q1','Q2','Q3','Q4'], i3.quarterSum, { color: '#e5677a' });
+
+  // Indicador 4
+  const i4 = parseIndicador4(rows, bounds);
+  document.getElementById('kpi4-total').textContent = fmtBRL(i4.totalAnual);
+  barChart('chart4-mensal', MESES_ABREV, MESES.map(m => i4.values[m]), {
+    color: '#e5b95b',
+    tooltipCallbacks: {
+      label: (ctx) => {
+        const mes = MESES[ctx.dataIndex];
+        const total = 'Total: ' + fmtBRL(ctx.parsed.y);
+        const det = i4.detalhes[mes] || [];
+        if (!det.length) return total;
+        const linhas = det.map(d => d.nome + ': ' + fmtBRL(d.valor));
+        return [total, ...linhas];
+      }
+    }
+  });
+  barChart('chart4-trimestral', ['Q1','Q2','Q3','Q4'], i4.quarterSum, {
+    color: '#e5b95b',
+    tooltipCallbacks: { label: (ctx) => fmtBRL(ctx.parsed.y) }
+  });
+
+  // Indicador 5
+  const i5 = parseIndicador5(rows, bounds);
+  document.getElementById('kpi5-total').textContent = i5.totalAnual;
+  barChart('chart5-mensal', MESES_ABREV, MESES.map(m => i5.values[m]), {
+    color: '#b48ce0',
+    tooltipCallbacks: {
+      label: (ctx) => {
+        const mes = MESES[ctx.dataIndex];
+        const det = i5.detalhes[mes] || [];
+        if (!det.length) return 'Sem ocorrências';
+        return det.map(d => d.cliente + ': ' + d.reclamacao);
+      }
+    }
+  });
+}
+
+// ---- Refresh cycle ----
+async function refresh(){
+  try{
+    const json = await loadSheet();
+    const rows = json.table.rows;
+    render(rows);
+    document.getElementById('errorBanner').style.display = 'none';
+    const now = new Date();
+    document.getElementById('lastUpdate').textContent = 'Atualizado às ' + now.toLocaleTimeString('pt-BR');
+    scheduleCountdown();
+  } catch(err){
+    console.error(err);
+    const banner = document.getElementById('errorBanner');
+    banner.textContent = 'Não foi possível atualizar os dados agora (' + err.message + '). Tentando novamente na próxima janela.';
+    banner.style.display = 'block';
+  }
+}
+
+function manualRefresh(){ refresh(); }
+
+function scheduleCountdown(){
+  if (countdownTimer) clearInterval(countdownTimer);
+  nextRefreshAt = Date.now() + REFRESH_MS;
+  countdownTimer = setInterval(() => {
+    const diff = nextRefreshAt - Date.now();
+    if (diff <= 0){
+      document.getElementById('nextUpdate').textContent = 'atualizando...';
+      return;
+    }
+    const mm = String(Math.floor(diff/60000)).padStart(2,'0');
+    const ss = String(Math.floor((diff%60000)/1000)).padStart(2,'0');
+    document.getElementById('nextUpdate').textContent = `próxima atualização em ${mm}:${ss}`;
+  }, 1000);
+}
+
+refresh();
+setInterval(refresh, REFRESH_MS);
+</script>
+
+</body>
+</html>
