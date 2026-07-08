@@ -262,6 +262,24 @@ function groupByMonth(rows, start, end, cols){
   return monthly;
 }
 
+// A planilha retorna alguns números como texto puro ("70") e outros já
+// formatados como moeda ("R$ 43.435,42"). Esta função lida com os dois casos.
+function parseNumberFlexible(val){
+  if (val === null || val === undefined || val === '' || val === '-') return null;
+  if (typeof val === 'number') return val;
+  if (typeof val === 'string'){
+    let s = val.trim();
+    if (s === '' || s === '-') return null;
+    s = s.replace(/R\$\s?/g, '').trim();
+    if (/,\d{1,2}$/.test(s)) {
+      s = s.replace(/\./g, '').replace(',', '.');
+    }
+    const n = parseFloat(s);
+    return isNaN(n) ? null : n;
+  }
+  return null;
+}
+
 function firstNonNull(monthly, colIdx){
   for (const mes of MESES){
     const entries = monthly[mes];
@@ -294,7 +312,7 @@ function parseIndicador1(rows, bounds){
   const [s,e] = bounds['1'];
   const monthly = groupByMonth(rows, s, e, [5,6]);
   const values = {};
-  MESES.forEach(m => { const ent = monthly[m]; values[m] = ent && ent[0] && typeof ent[0][0] === 'number' ? ent[0][0] : null; });
+  MESES.forEach(m => { const ent = monthly[m]; values[m] = ent && ent[0] ? parseNumberFlexible(ent[0][0]) : null; });
   const atual = firstNonNull(monthly, 1);
   return { values, atual, quarterAvg: quarterAverage(values) };
 }
@@ -303,7 +321,7 @@ function parseIndicador2(rows, bounds){
   const [s,e] = bounds['2'];
   const monthly = groupByMonth(rows, s, e, [5,6]);
   const values = {};
-  MESES.forEach(m => { const ent = monthly[m]; values[m] = ent && ent[0] && typeof ent[0][0] === 'number' ? ent[0][0] : null; });
+  MESES.forEach(m => { const ent = monthly[m]; values[m] = ent && ent[0] ? parseNumberFlexible(ent[0][0]) : null; });
   const atual = firstNonNull(monthly, 1);
   return { values, atual, quarterAvg: quarterAverage(values) };
 }
@@ -314,11 +332,11 @@ function parseIndicador3(rows, bounds){
   const values = {}, clientes = {};
   MESES.forEach(m => {
     const ent = monthly[m] && monthly[m][0];
-    values[m] = ent && typeof ent[0] === 'number' ? ent[0] : 0;
+    values[m] = ent ? (parseNumberFlexible(ent[0]) ?? 0) : 0;
     const clienteStr = ent ? ent[1] : null;
     clientes[m] = (clienteStr && clienteStr !== '-') ? clienteStr : null;
   });
-  const totalAnual = firstNonNull(monthly, 2) ?? 0;
+  const totalAnual = parseNumberFlexible(firstNonNull(monthly, 2)) ?? 0;
   return { values, clientes, totalAnual, quarterSum: quarterSum(values) };
 }
 
@@ -329,13 +347,13 @@ function parseIndicador4(rows, bounds){
   MESES.forEach(m => {
     const entries = monthly[m] || [];
     const totalMensal = firstNonNull({[m]: entries}, 2);
-    values[m] = typeof totalMensal === 'number' ? totalMensal : 0;
+    values[m] = parseNumberFlexible(totalMensal) ?? 0;
     const clientes = entries
       .filter(en => en[0] && en[0] !== '-')
-      .map(en => ({ nome: en[0], valor: typeof en[1] === 'number' ? en[1] : null }));
+      .map(en => ({ nome: en[0], valor: parseNumberFlexible(en[1]) }));
     detalhes[m] = clientes;
   });
-  const totalAnual = firstNonNull(monthly, 3) ?? 0;
+  const totalAnual = parseNumberFlexible(firstNonNull(monthly, 3)) ?? 0;
   return { values, detalhes, totalAnual, quarterSum: quarterSum(values) };
 }
 
