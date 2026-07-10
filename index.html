@@ -123,7 +123,7 @@
   <div class="tab active" id="tabbtn-administrativo" onclick="showTab('administrativo')">Administrativo</div>
   <div class="tab" id="tabbtn-comercial" onclick="showTab('comercial')">Comercial</div>
   <div class="tab" id="tabbtn-operacional" onclick="showTab('operacional')">Operacional</div>
-  <div class="tab disabled">Departamento Pessoal (em breve)</div>
+  <div class="tab" id="tabbtn-dp" onclick="showTab('dp')">Departamento Pessoal</div>
   <div class="tab disabled">Impacto (em breve)</div>
 </div>
 
@@ -350,6 +350,103 @@
 
 </div>
 
+<!-- ==================== DEPARTAMENTO PESSOAL ==================== -->
+<div class="tab-panel" id="tab-dp">
+
+<!-- INDICADOR 1 -->
+<section class="indicator">
+  <div class="ind-header">
+    <h2>1. Quantidade de Faltas não Justificadas</h2>
+    <span class="badge">Indicador 1 · 2026</span>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="label">Total anual</div><div class="value" id="d-kpi1-total">—</div></div>
+  </div>
+  <div class="charts">
+    <div class="chart-box"><h3>Mês a mês</h3><div class="chart-wrap"><canvas id="d-chart1-mensal"></canvas></div></div>
+    <div class="chart-box"><h3>Total por trimestre</h3><div class="chart-wrap"><canvas id="d-chart1-trimestral"></canvas></div></div>
+  </div>
+</section>
+
+<!-- INDICADOR 2 -->
+<section class="indicator">
+  <div class="ind-header">
+    <h2>2. Colaborador com Mais Faltas não Justificadas</h2>
+    <span class="badge">Indicador 2 · 2026 · passe o mouse para ver o colaborador</span>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="label">Total anual</div><div class="value" id="d-kpi2-total">—</div></div>
+  </div>
+  <div class="charts">
+    <div class="chart-box"><h3>Mês a mês</h3><div class="chart-wrap"><canvas id="d-chart2-mensal"></canvas></div></div>
+    <div class="chart-box"><h3>Total por trimestre</h3><div class="chart-wrap"><canvas id="d-chart2-trimestral"></canvas></div></div>
+  </div>
+</section>
+
+<!-- INDICADOR 3 -->
+<section class="indicator">
+  <div class="ind-header">
+    <h2>3. Média das Horas Semanais Trabalhadas</h2>
+    <span class="badge">Indicador 3 · 2026 · Coleta, Base e Administrativo</span>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="label">Média anual · Coleta</div><div class="value" id="d-kpi3-coleta">—</div></div>
+    <div class="kpi"><div class="label">Média anual · Base</div><div class="value" id="d-kpi3-base">—</div></div>
+    <div class="kpi"><div class="label">Média anual · Administrativo</div><div class="value" id="d-kpi3-administrativo">—</div></div>
+  </div>
+  <div class="charts">
+    <div class="chart-box"><h3>Mês a mês</h3><div class="chart-wrap"><canvas id="d-chart3-mensal"></canvas></div></div>
+    <div class="chart-box"><h3>Média trimestral</h3><div class="chart-wrap"><canvas id="d-chart3-trimestral"></canvas></div></div>
+  </div>
+</section>
+
+<!-- INDICADOR 4 -->
+<section class="indicator">
+  <div class="ind-header">
+    <h2>4. Quantidade de Treinamentos das Pílulas Realizados por Colaborador</h2>
+    <span class="badge">Indicador 4 · 2026</span>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="label">Total anual</div><div class="value" id="d-kpi4-total">—</div></div>
+  </div>
+  <div class="charts">
+    <div class="chart-box"><h3>Mês a mês</h3><div class="chart-wrap"><canvas id="d-chart4-mensal"></canvas></div></div>
+    <div class="chart-box"><h3>Total por trimestre</h3><div class="chart-wrap"><canvas id="d-chart4-trimestral"></canvas></div></div>
+  </div>
+</section>
+
+<!-- INDICADOR 5 -->
+<section class="indicator">
+  <div class="ind-header">
+    <h2>5. Quantidade de Colaboradores Treinados pelas NRs · Equipe Base</h2>
+    <span class="badge">Indicador 5 · 2026</span>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="label">Total anual</div><div class="value" id="d-kpi5-total">—</div></div>
+  </div>
+  <div class="charts">
+    <div class="chart-box"><h3>Mês a mês</h3><div class="chart-wrap"><canvas id="d-chart5-mensal"></canvas></div></div>
+    <div class="chart-box"><h3>Total por trimestre</h3><div class="chart-wrap"><canvas id="d-chart5-trimestral"></canvas></div></div>
+  </div>
+</section>
+
+<!-- INDICADOR 6 -->
+<section class="indicator">
+  <div class="ind-header">
+    <h2>6. Quantidade de Colaboradores Treinados pelas NRs · Equipe Rota</h2>
+    <span class="badge">Indicador 6 · 2026</span>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="label">Total anual</div><div class="value" id="d-kpi6-total">—</div></div>
+  </div>
+  <div class="charts">
+    <div class="chart-box"><h3>Mês a mês</h3><div class="chart-wrap"><canvas id="d-chart6-mensal"></canvas></div></div>
+    <div class="chart-box"><h3>Total por trimestre</h3><div class="chart-wrap"><canvas id="d-chart6-trimestral"></canvas></div></div>
+  </div>
+</section>
+
+</div>
+
 <footer>Dados vindos automaticamente do Google Sheets · atualização a cada 20 minutos</footer>
 </div>
 
@@ -358,6 +455,7 @@ const SHEET_ID = '1Fm8h4423iAFd3t-htj0Z62XM6oEnJs15Zp-iEHzdI3I';
 const GID_ADMINISTRATIVO = '526094978';
 const GID_COMERCIAL = '19455487';
 const GID_OPERACIONAL = '2037495349';
+const GID_DP = '846434514';
 const REFRESH_MS = 20 * 60 * 1000;
 
 const MESES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
@@ -371,6 +469,7 @@ let chartType = 'line';
 let lastAdminRows = null;
 let lastComercialRows = null;
 let lastOperacionalRows = null;
+let lastDPRows = null;
 
 function fmtBRL(n){
   if (n === null || n === undefined || isNaN(n)) return 'R$ 0,00';
@@ -403,7 +502,9 @@ function toggleChartType(){
   if (lastAdminRows) renderAdministrativo(lastAdminRows);
   if (lastComercialRows) renderComercial(lastComercialRows);
   if (lastOperacionalRows) renderOperacional(lastOperacionalRows);
+  if (lastDPRows) renderDP(lastDPRows);
 }
+
 
 // ---- JSONP loader (avoids CORS entirely) ----
 function loadSheet(gid){
@@ -458,6 +559,11 @@ function groupByMonth(rows, start, end, cols){
     if (mes && MESES.includes(mes)){
       current = mes;
       if (!monthly[current]) monthly[current] = [];
+    } else if (mes) {
+      // Rótulo não-mês (ex.: "Média Anual") — encerra o mês atual para não
+      // misturar essa linha de resumo com os dados do último mês.
+      current = null;
+      continue;
     }
     if (!current) continue;
     const vals = cols.map(c => cellVal(row, c));
@@ -750,6 +856,103 @@ function parseOperacional5(rows, bounds){
   return { values, mediaAnual, meta, quarterAvg: quarterAverage(values) };
 }
 
+// ---- Parse each Departamento Pessoal indicator ----
+function parseDP1(rows, bounds){
+  const [s,e] = bounds['1'];
+  const monthly = groupByMonth(rows, s, e, [5,6]);
+  const values = {};
+  MESES.forEach(m => { const ent = monthly[m]; values[m] = ent && ent[0] ? parseNumberFlexible(ent[0][0]) : null; });
+  const totalAnual = parseNumberFlexible(firstNonNull(monthly, 1)) ?? 0;
+  return { values, totalAnual, quarterSum: quarterSum(values) };
+}
+
+function parseDP2(rows, bounds){
+  const [s,e] = bounds['2'];
+  const monthly = groupByMonth(rows, s, e, [5,6,7]);
+  const values = {}, nomes = {};
+  MESES.forEach(m => {
+    const ent = monthly[m] && monthly[m][0];
+    values[m] = ent ? parseNumberFlexible(ent[0]) : null;
+    const nome = ent ? ent[1] : null;
+    nomes[m] = (nome && nome !== '-') ? nome : null;
+  });
+  const totalAnual = parseNumberFlexible(firstNonNull(monthly, 2)) ?? 0;
+  return { values, nomes, totalAnual, quarterSum: quarterSum(values) };
+}
+
+// Algumas linhas-resumo (ex.: "Média Anual") têm seus 3 valores espalhados em
+// colunas ligeiramente diferentes das linhas mensais — por isso a busca varre
+// as colunas candidatas em ordem e pega os primeiros números encontrados.
+function collectOrderedNumbers(rows, startIdx, maxRows, cols, count){
+  const found = [];
+  for (let i = startIdx; i < startIdx + maxRows && found.length < count; i++){
+    const row = rows[i];
+    if (!row) continue;
+    cols.forEach(c => {
+      if (found.length >= count) return;
+      const n = parseNumberFlexible(cellVal(row, c));
+      if (n !== null) found.push(n);
+    });
+  }
+  return found;
+}
+
+function parseDP3(rows, bounds){
+  const [s,e] = bounds['3'];
+  const monthly = groupByMonth(rows, s, e, [5,6,7,8]);
+  const coleta = {}, base = {}, administrativo = {};
+  MESES.forEach(m => {
+    const ent = monthly[m] && monthly[m][0];
+    if (!ent){ coleta[m] = null; base[m] = null; administrativo[m] = null; return; }
+    const nums = ent.map(v => parseNumberFlexible(v)).filter(n => n !== null);
+    coleta[m] = nums[0] ?? null;
+    base[m] = nums[1] ?? null;
+    administrativo[m] = nums[2] ?? null;
+  });
+  let mediaAnual = { coleta: null, base: null, administrativo: null };
+  for (let i = s; i < e; i++){
+    const mesRaw = cellVal(rows[i], 4);
+    if (typeof mesRaw === 'string' && mesRaw.trim() === 'Média Anual'){
+      const nums = collectOrderedNumbers(rows, i, 2, [5,6,7,8], 3);
+      mediaAnual = { coleta: nums[0] ?? null, base: nums[1] ?? null, administrativo: nums[2] ?? null };
+      break;
+    }
+  }
+  return {
+    coleta, base, administrativo, mediaAnual,
+    quarterAvgColeta: quarterAverage(coleta),
+    quarterAvgBase: quarterAverage(base),
+    quarterAvgAdministrativo: quarterAverage(administrativo)
+  };
+}
+
+function parseDP4(rows, bounds){
+  const [s,e] = bounds['4'];
+  const monthly = groupByMonth(rows, s, e, [5,6]);
+  const values = {};
+  MESES.forEach(m => { const ent = monthly[m]; values[m] = ent && ent[0] ? parseNumberFlexible(ent[0][0]) : null; });
+  const totalAnual = parseNumberFlexible(firstNonNull(monthly, 1)) ?? 0;
+  return { values, totalAnual, quarterSum: quarterSum(values) };
+}
+
+function parseDP5(rows, bounds){
+  const [s,e] = bounds['5'];
+  const monthly = groupByMonth(rows, s, e, [5,6]);
+  const values = {};
+  MESES.forEach(m => { const ent = monthly[m]; values[m] = ent && ent[0] ? parseNumberFlexible(ent[0][0]) : null; });
+  const totalAnual = parseNumberFlexible(firstNonNull(monthly, 1)) ?? 0;
+  return { values, totalAnual, quarterSum: quarterSum(values) };
+}
+
+function parseDP6(rows, bounds){
+  const [s,e] = bounds['6'];
+  const monthly = groupByMonth(rows, s, e, [5,6]);
+  const values = {};
+  MESES.forEach(m => { const ent = monthly[m]; values[m] = ent && ent[0] ? parseNumberFlexible(ent[0][0]) : null; });
+  const totalAnual = parseNumberFlexible(firstNonNull(monthly, 1)) ?? 0;
+  return { values, totalAnual, quarterSum: quarterSum(values) };
+}
+
 // ---- Chart helpers ----
 function destroyChart(id){ if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
 
@@ -835,6 +1038,46 @@ function renderRankingChart(canvasId, entries, color){
       scales: {
         x: { ticks: { color: '#5B7070', font: { family: 'Sora' }, precision: 0 }, grid: { color: '#E3E7E1' }, beginAtZero: true },
         y: { ticks: { color: '#5B7070', font: { family: 'Sora', size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+// Gráfico com várias séries no mesmo eixo (ex.: Coleta / Base / Administrativo).
+function renderMultiChart(canvasId, labels, series, opts = {}){
+  destroyChart(canvasId);
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  const type = opts.forceType || chartType;
+  const datasets = series.map(s => Object.assign({ label: s.label, data: s.data, type }, styleForType(s.color, type)));
+  const allVals = series.flatMap(s => s.data).filter(v => v !== null && v !== undefined && !isNaN(v));
+  let yMax;
+  if (allVals.length && type === 'line'){
+    const dMax = Math.max(...allVals);
+    const dMin = Math.min(...allVals, 0);
+    const pad = Math.max((dMax - dMin) * 0.15, dMax * 0.05, 1);
+    yMax = Math.ceil(dMax + pad);
+  }
+  charts[canvasId] = new Chart(ctx, {
+    type: type,
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: true, labels: { color: '#5B7070', font: { family: 'Sora', size: 11 } } },
+        tooltip: {
+          backgroundColor: '#1F4242', borderColor: '#3E6B6B', borderWidth: 1,
+          titleColor: '#fff', bodyColor: '#E3EDE9', padding: 10,
+          titleFont: { family: 'Sora' }, bodyFont: { family: 'Sora' }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#5B7070', font: { family: 'Sora' } }, grid: { color: '#E3E7E1' } },
+        y: {
+          ticks: { color: '#5B7070', font: { family: 'Sora' }, display: true, maxTicksLimit: 7 },
+          grid: { color: '#E3E7E1' },
+          min: 0, max: yMax, beginAtZero: true
+        }
       }
     }
   });
@@ -991,7 +1234,7 @@ function renderOperacional(rows){
   }
 
   const o1 = parseOperacional1(rows, bounds);
-  document.getElementById('o-kpi1-total').textContent = o1.totalAnual;
+  document.getElementById('o-kpi1-total').textContent = Math.round(o1.totalAnual);
   renderChart('o-chart1-mensal', MESES_ABREV, MESES.map(m => o1.values[m]), {
     color: '#1F4242', seriesLabel: 'Bombonas/colaborador/dia',
     tooltipCallbacks: { label: (ctx) => {
@@ -1005,8 +1248,8 @@ function renderOperacional(rows){
   renderChart('o-chart1-trimestral', ['Q1','Q2','Q3','Q4'], o1.quarterAvg.map(v => v !== null ? Math.round(v*10)/10 : null), { color: '#8FC93E', seriesLabel: 'Média' });
 
   const o2 = parseOperacional2(rows, bounds);
-  document.getElementById('o-kpi2-total').textContent = o2.totalAnual;
-  renderChart('o-chart2-mensal', MESES_ABREV, MESES.map(m => o2.values[m]), { color: '#3E6B6B', seriesLabel: 'Bombonas (rotas)' });
+  document.getElementById('o-kpi2-total').textContent = Math.round(o2.totalAnual);
+  renderChart('o-chart2-mensal', MESES_ABREV, MESES.map(m => o2.values[m] !== null ? Math.round(o2.values[m]) : null), { color: '#3E6B6B', seriesLabel: 'Bombonas (rotas)' });
   renderChart('o-chart2-trimestral', ['Q1','Q2','Q3','Q4'], o2.quarterAvg.map(v => v !== null ? Math.round(v*10)/10 : null), { color: '#8FC93E', seriesLabel: 'Média' });
 
   const o3 = parseOperacional3(rows, bounds);
@@ -1047,20 +1290,79 @@ function renderOperacional(rows){
   });
 }
 
+// ---- Render: Departamento Pessoal ----
+function renderDP(rows){
+  const bounds = findBlocks(rows);
+  if (!bounds['1'] || !bounds['2'] || !bounds['3'] || !bounds['4'] || !bounds['5'] || !bounds['6']) {
+    throw new Error('Não foi possível localizar todos os indicadores do Departamento Pessoal (estrutura pode ter mudado).');
+  }
+
+  const d1 = parseDP1(rows, bounds);
+  document.getElementById('d-kpi1-total').textContent = d1.totalAnual;
+  renderChart('d-chart1-mensal', MESES_ABREV, MESES.map(m => d1.values[m]), { color: '#1F4242', seriesLabel: 'Faltas' });
+  renderChart('d-chart1-trimestral', ['Q1','Q2','Q3','Q4'], d1.quarterSum, { color: '#8FC93E', seriesLabel: 'Faltas' });
+
+  const d2 = parseDP2(rows, bounds);
+  document.getElementById('d-kpi2-total').textContent = d2.totalAnual;
+  renderChart('d-chart2-mensal', MESES_ABREV, MESES.map(m => d2.values[m]), {
+    color: '#3E6B6B', seriesLabel: 'Faltas',
+    tooltipCallbacks: { label: (ctx) => {
+      const mes = MESES[ctx.dataIndex];
+      const qtd = 'Faltas: ' + ctx.parsed.y;
+      const nome = d2.nomes[mes];
+      return nome ? [qtd, 'Colaborador: ' + nome] : qtd;
+    } }
+  });
+  renderChart('d-chart2-trimestral', ['Q1','Q2','Q3','Q4'], d2.quarterSum, { color: '#8FC93E', seriesLabel: 'Faltas' });
+
+  const d3 = parseDP3(rows, bounds);
+  document.getElementById('d-kpi3-coleta').textContent = d3.mediaAnual.coleta !== null ? d3.mediaAnual.coleta.toFixed(1) + 'h' : '—';
+  document.getElementById('d-kpi3-base').textContent = d3.mediaAnual.base !== null ? d3.mediaAnual.base.toFixed(1) + 'h' : '—';
+  document.getElementById('d-kpi3-administrativo').textContent = d3.mediaAnual.administrativo !== null ? d3.mediaAnual.administrativo.toFixed(1) + 'h' : '—';
+  renderMultiChart('d-chart3-mensal', MESES_ABREV, [
+    { label: 'Coleta', color: '#1F4242', data: MESES.map(m => d3.coleta[m]) },
+    { label: 'Base', color: '#B87333', data: MESES.map(m => d3.base[m]) },
+    { label: 'Administrativo', color: '#773F3F', data: MESES.map(m => d3.administrativo[m]) }
+  ]);
+  renderMultiChart('d-chart3-trimestral', ['Q1','Q2','Q3','Q4'], [
+    { label: 'Coleta', color: '#1F4242', data: d3.quarterAvgColeta.map(v => v !== null ? Math.round(v*10)/10 : null) },
+    { label: 'Base', color: '#B87333', data: d3.quarterAvgBase.map(v => v !== null ? Math.round(v*10)/10 : null) },
+    { label: 'Administrativo', color: '#773F3F', data: d3.quarterAvgAdministrativo.map(v => v !== null ? Math.round(v*10)/10 : null) }
+  ]);
+
+  const d4 = parseDP4(rows, bounds);
+  document.getElementById('d-kpi4-total').textContent = d4.totalAnual;
+  renderChart('d-chart4-mensal', MESES_ABREV, MESES.map(m => d4.values[m]), { color: '#773F3F', seriesLabel: 'Treinamentos' });
+  renderChart('d-chart4-trimestral', ['Q1','Q2','Q3','Q4'], d4.quarterSum, { color: '#9C6262', seriesLabel: 'Treinamentos' });
+
+  const d5 = parseDP5(rows, bounds);
+  document.getElementById('d-kpi5-total').textContent = d5.totalAnual;
+  renderChart('d-chart5-mensal', MESES_ABREV, MESES.map(m => d5.values[m]), { color: '#B87333', seriesLabel: 'Colaboradores treinados' });
+  renderChart('d-chart5-trimestral', ['Q1','Q2','Q3','Q4'], d5.quarterSum, { color: '#8FA83E', seriesLabel: 'Colaboradores treinados' });
+
+  const d6 = parseDP6(rows, bounds);
+  document.getElementById('d-kpi6-total').textContent = d6.totalAnual;
+  renderChart('d-chart6-mensal', MESES_ABREV, MESES.map(m => d6.values[m]), { color: '#8FA83E', seriesLabel: 'Colaboradores treinados' });
+  renderChart('d-chart6-trimestral', ['Q1','Q2','Q3','Q4'], d6.quarterSum, { color: '#B87333', seriesLabel: 'Colaboradores treinados' });
+}
+
 // ---- Refresh cycle ----
 async function refresh(){
   try{
-    const [adminJson, comercialJson, operacionalJson] = await Promise.all([
+    const [adminJson, comercialJson, operacionalJson, dpJson] = await Promise.all([
       loadSheet(GID_ADMINISTRATIVO),
       loadSheet(GID_COMERCIAL),
-      loadSheet(GID_OPERACIONAL)
+      loadSheet(GID_OPERACIONAL),
+      loadSheet(GID_DP)
     ]);
     lastAdminRows = adminJson.table.rows;
     lastComercialRows = comercialJson.table.rows;
     lastOperacionalRows = operacionalJson.table.rows;
+    lastDPRows = dpJson.table.rows;
     renderAdministrativo(lastAdminRows);
     renderComercial(lastComercialRows);
     renderOperacional(lastOperacionalRows);
+    renderDP(lastDPRows);
     document.getElementById('errorBanner').style.display = 'none';
     const now = new Date();
     document.getElementById('lastUpdate').textContent = 'Atualizado às ' + now.toLocaleTimeString('pt-BR');
