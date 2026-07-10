@@ -124,7 +124,7 @@
   <div class="tab" id="tabbtn-comercial" onclick="showTab('comercial')">Comercial</div>
   <div class="tab" id="tabbtn-operacional" onclick="showTab('operacional')">Operacional</div>
   <div class="tab" id="tabbtn-dp" onclick="showTab('dp')">Departamento Pessoal</div>
-  <div class="tab disabled">Impacto (em breve)</div>
+  <div class="tab" id="tabbtn-impacto" onclick="showTab('impacto')">Impacto</div>
 </div>
 
 <div class="error-banner" id="errorBanner"></div>
@@ -372,7 +372,7 @@
 <section class="indicator">
   <div class="ind-header">
     <h2>2. Colaborador com Mais Faltas não Justificadas</h2>
-    <span class="badge">Indicador 2 · 2026 · passe o mouse para ver o colaborador</span>
+    <span class="badge">Indicador 2 · 2026</span>
   </div>
   <div class="kpis">
     <div class="kpi"><div class="label">Total anual</div><div class="value" id="d-kpi2-total">—</div></div>
@@ -447,6 +447,72 @@
 
 </div>
 
+<!-- ==================== IMPACTO ==================== -->
+<div class="tab-panel" id="tab-impacto">
+
+<!-- INDICADOR 1 -->
+<section class="indicator">
+  <div class="ind-header">
+    <h2>1. Quantidade de Resíduos Desviados de Aterros (BH e Mecanizado)</h2>
+    <span class="badge">Indicador 1 · 2026</span>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="label">Total anual</div><div class="value" id="im-kpi1-total">—</div></div>
+    <div class="kpi"><div class="label">Meta mensal</div><div class="value" id="im-kpi1-meta">—</div></div>
+  </div>
+  <div class="charts">
+    <div class="chart-box"><h3>Mês a mês (com meta)</h3><div class="chart-wrap"><canvas id="im-chart1-mensal"></canvas></div></div>
+    <div class="chart-box"><h3>Total por trimestre</h3><div class="chart-wrap"><canvas id="im-chart1-trimestral"></canvas></div></div>
+  </div>
+</section>
+
+<!-- INDICADOR 2 -->
+<section class="indicator">
+  <div class="ind-header">
+    <h2>2. Quantidade de Resíduos Desviados de Aterro (Betim)</h2>
+    <span class="badge">Indicador 2 · 2026</span>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="label">Total anual</div><div class="value" id="im-kpi2-total">—</div></div>
+  </div>
+  <div class="charts">
+    <div class="chart-box"><h3>Mês a mês</h3><div class="chart-wrap"><canvas id="im-chart2-mensal"></canvas></div></div>
+    <div class="chart-box"><h3>Total por trimestre</h3><div class="chart-wrap"><canvas id="im-chart2-trimestral"></canvas></div></div>
+  </div>
+</section>
+
+<!-- INDICADOR 3 -->
+<section class="indicator">
+  <div class="ind-header">
+    <h2>3. Dados Históricos de Impacto Massalas</h2>
+    <span class="badge">Indicador 3 · 2018–2026 · Resíduos desviados, CO2 evitado e árvores equivalentes</span>
+  </div>
+  <div class="charts" style="grid-template-columns:1fr;">
+    <div class="chart-box"><h3>Ano a ano</h3><div class="chart-wrap tall"><canvas id="im-chart3-anos"></canvas></div></div>
+  </div>
+</section>
+
+<!-- INDICADOR 4 -->
+<section class="indicator">
+  <div class="ind-header">
+    <h2>4. Quantidade de Pessoas Impactadas Diretamente</h2>
+    <span class="badge">Indicador 4 · 2026 · treinamento e sensibilização</span>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="label">Total anual</div><div class="value" id="im-kpi4-total">—</div></div>
+    <div class="kpi"><div class="label">Total histórico</div><div class="value" id="im-kpi4-historico">—</div></div>
+  </div>
+  <div class="charts">
+    <div class="chart-box"><h3>Mês a mês</h3><div class="chart-wrap"><canvas id="im-chart4-mensal"></canvas></div></div>
+    <div class="chart-box"><h3>Total por trimestre</h3><div class="chart-wrap"><canvas id="im-chart4-trimestral"></canvas></div></div>
+  </div>
+  <div class="charts" style="grid-template-columns:1fr; margin-top:20px;">
+    <div class="chart-box"><h3>Ano a ano</h3><div class="chart-wrap"><canvas id="im-chart4-anos"></canvas></div></div>
+  </div>
+</section>
+
+</div>
+
 <footer>Dados vindos automaticamente do Google Sheets · atualização a cada 20 minutos</footer>
 </div>
 
@@ -456,6 +522,7 @@ const GID_ADMINISTRATIVO = '526094978';
 const GID_COMERCIAL = '19455487';
 const GID_OPERACIONAL = '2037495349';
 const GID_DP = '846434514';
+const GID_IMPACTO = '1557499448';
 const REFRESH_MS = 20 * 60 * 1000;
 
 const MESES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
@@ -470,6 +537,7 @@ let lastAdminRows = null;
 let lastComercialRows = null;
 let lastOperacionalRows = null;
 let lastDPRows = null;
+let lastImpactoRows = null;
 
 function fmtBRL(n){
   if (n === null || n === undefined || isNaN(n)) return 'R$ 0,00';
@@ -503,6 +571,7 @@ function toggleChartType(){
   if (lastComercialRows) renderComercial(lastComercialRows);
   if (lastOperacionalRows) renderOperacional(lastOperacionalRows);
   if (lastDPRows) renderDP(lastDPRows);
+  if (lastImpactoRows) renderImpacto(lastImpactoRows);
 }
 
 
@@ -583,9 +652,10 @@ function parseNumberFlexible(val){
     let s = val.trim();
     if (s === '' || s === '-') return null;
     s = s.replace(/R\$\s?/g, '').trim();
-    if (/,\d{1,2}$/.test(s)) {
-      s = s.replace(/\./g, '').replace(',', '.');
-    }
+    // Formato brasileiro: o ponto é sempre separador de milhar e a vírgula é
+    // o separador decimal (nunca o contrário), então isso vale tanto para
+    // "447,75" quanto para números só de milhar sem decimais como "5.070".
+    s = s.replace(/\./g, '').replace(',', '.');
     const n = parseFloat(s);
     return isNaN(n) ? null : n;
   }
@@ -953,6 +1023,70 @@ function parseDP6(rows, bounds){
   return { values, totalAnual, quarterSum: quarterSum(values) };
 }
 
+// ---- Parse each Impacto indicator ----
+function parseImpacto1(rows, bounds){
+  const [s,e] = bounds['1'];
+  const monthly = groupByMonth(rows, s, e, [5,6]);
+  const values = {};
+  MESES.forEach(m => { const ent = monthly[m]; values[m] = ent && ent[0] ? parseNumberFlexible(ent[0][0]) : null; });
+  const totalAnual = parseNumberFlexible(firstNonNull(monthly, 1)) ?? 0;
+  // A meta fica numa linha oculta na planilha (não aparece via API) — usa valor fixo de 180 ton/mês.
+  const meta = findMeta(rows, s, e, 180);
+  return { values, totalAnual, meta, quarterSum: quarterSum(values) };
+}
+
+function parseImpacto2(rows, bounds){
+  const [s,e] = bounds['2'];
+  const monthly = groupByMonth(rows, s, e, [5,6]);
+  const values = {};
+  MESES.forEach(m => { const ent = monthly[m]; values[m] = ent && ent[0] ? parseNumberFlexible(ent[0][0]) : null; });
+  const totalAnual = parseNumberFlexible(firstNonNull(monthly, 1)) ?? 0;
+  return { values, totalAnual, quarterSum: quarterSum(values) };
+}
+
+// Indicador 3 é uma tabela ano-a-ano (2018-2026), não mês-a-mês: cada linha
+// "3.N. <nome>" tem um valor por ano nas colunas 4-12.
+const IMPACTO_ANOS = ['2018','2019','2020','2021','2022','2023','2024','2025','2026'];
+function parseImpacto3(rows, bounds){
+  const [s,e] = bounds['3'];
+  const series = [];
+  for (let i = s; i < e; i++){
+    const label = cellVal(rows[i], 2);
+    if (typeof label === 'string' && /^3\.\d+\./.test(label.trim())){
+      const nome = label.trim().replace(/^3\.\d+\.\s*/, '');
+      const data = [];
+      for (let c = 4; c <= 12; c++) data.push(parseNumberFlexible(cellVal(rows[i], c)));
+      series.push({ label: nome, data });
+    }
+  }
+  return { anos: IMPACTO_ANOS, series };
+}
+
+function parseImpacto4(rows, bounds){
+  const [s,e] = bounds['4'];
+  const monthly = groupByMonth(rows, s, e, [5,6]);
+  const values = {};
+  MESES.forEach(m => { const ent = monthly[m]; values[m] = ent && ent[0] ? parseNumberFlexible(ent[0][0]) : null; });
+  const totalAnual = parseNumberFlexible(firstNonNull(monthly, 1)) ?? 0;
+  // Tabela lateral (alinhada às linhas de Trimestre) com o total de cada ano
+  // e, na última linha, o total histórico (sem ano associado).
+  const anoTotals = [];
+  let totalHistorico = null;
+  for (let i = s; i < e; i++){
+    const trimestre = cellVal(rows[i], 8);
+    if (typeof trimestre === 'string' && /^Q[1-4]$/.test(trimestre.trim())){
+      const anoNum = parseNumberFlexible(cellVal(rows[i], 10));
+      const total = parseNumberFlexible(cellVal(rows[i], 11));
+      if (anoNum !== null && total !== null){
+        anoTotals.push({ ano: String(Math.round(anoNum)), total });
+      } else if (anoNum === null && total !== null){
+        totalHistorico = total;
+      }
+    }
+  }
+  return { values, totalAnual, quarterSum: quarterSum(values), anoTotals, totalHistorico };
+}
+
 // ---- Chart helpers ----
 function destroyChart(id){ if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
 
@@ -1305,13 +1439,7 @@ function renderDP(rows){
   const d2 = parseDP2(rows, bounds);
   document.getElementById('d-kpi2-total').textContent = d2.totalAnual;
   renderChart('d-chart2-mensal', MESES_ABREV, MESES.map(m => d2.values[m]), {
-    color: '#3E6B6B', seriesLabel: 'Faltas',
-    tooltipCallbacks: { label: (ctx) => {
-      const mes = MESES[ctx.dataIndex];
-      const qtd = 'Faltas: ' + ctx.parsed.y;
-      const nome = d2.nomes[mes];
-      return nome ? [qtd, 'Colaborador: ' + nome] : qtd;
-    } }
+    color: '#3E6B6B', seriesLabel: 'Faltas'
   });
   renderChart('d-chart2-trimestral', ['Q1','Q2','Q3','Q4'], d2.quarterSum, { color: '#8FC93E', seriesLabel: 'Faltas' });
 
@@ -1346,23 +1474,63 @@ function renderDP(rows){
   renderChart('d-chart6-trimestral', ['Q1','Q2','Q3','Q4'], d6.quarterSum, { color: '#B87333', seriesLabel: 'Colaboradores treinados' });
 }
 
+// ---- Render: Impacto ----
+function renderImpacto(rows){
+  const bounds = findBlocks(rows);
+  if (!bounds['1'] || !bounds['2'] || !bounds['3'] || !bounds['4']) {
+    throw new Error('Não foi possível localizar todos os indicadores do Impacto (estrutura pode ter mudado).');
+  }
+
+  const im1 = parseImpacto1(rows, bounds);
+  document.getElementById('im-kpi1-total').textContent = im1.totalAnual.toLocaleString('pt-BR') + ' ton';
+  document.getElementById('im-kpi1-meta').textContent = im1.meta + ' ton/mês';
+  renderChart('im-chart1-mensal', MESES_ABREV, MESES.map(m => im1.values[m]), {
+    color: '#1F4242', seriesLabel: 'Resíduos desviados (ton)', meta: im1.meta,
+    tooltipCallbacks: { label: (ctx) => {
+      if (ctx.dataset.label === 'Meta') return 'Meta: ' + ctx.parsed.y + ' ton';
+      return 'Resíduos: ' + ctx.parsed.y + ' ton';
+    } }
+  });
+  renderChart('im-chart1-trimestral', ['Q1','Q2','Q3','Q4'], im1.quarterSum, { color: '#8FC93E', seriesLabel: 'Resíduos (ton)' });
+
+  const im2 = parseImpacto2(rows, bounds);
+  document.getElementById('im-kpi2-total').textContent = im2.totalAnual.toLocaleString('pt-BR') + ' ton';
+  renderChart('im-chart2-mensal', MESES_ABREV, MESES.map(m => im2.values[m]), { color: '#3E6B6B', seriesLabel: 'Resíduos desviados (ton)' });
+  renderChart('im-chart2-trimestral', ['Q1','Q2','Q3','Q4'], im2.quarterSum, { color: '#8FC93E', seriesLabel: 'Resíduos (ton)' });
+
+  const im3 = parseImpacto3(rows, bounds);
+  renderMultiChart('im-chart3-anos', im3.anos, im3.series.map((s, idx) => ({
+    label: s.label, data: s.data, color: ['#1F4242', '#773F3F', '#8FA83E'][idx % 3]
+  })));
+
+  const im4 = parseImpacto4(rows, bounds);
+  document.getElementById('im-kpi4-total').textContent = im4.totalAnual.toLocaleString('pt-BR');
+  document.getElementById('im-kpi4-historico').textContent = im4.totalHistorico !== null ? im4.totalHistorico.toLocaleString('pt-BR') : '—';
+  renderChart('im-chart4-mensal', MESES_ABREV, MESES.map(m => im4.values[m]), { color: '#B87333', seriesLabel: 'Pessoas impactadas' });
+  renderChart('im-chart4-trimestral', ['Q1','Q2','Q3','Q4'], im4.quarterSum, { color: '#9C6262', seriesLabel: 'Pessoas impactadas' });
+  renderChart('im-chart4-anos', im4.anoTotals.map(a => a.ano), im4.anoTotals.map(a => a.total), { color: '#8FA83E', seriesLabel: 'Pessoas impactadas' });
+}
+
 // ---- Refresh cycle ----
 async function refresh(){
   try{
-    const [adminJson, comercialJson, operacionalJson, dpJson] = await Promise.all([
+    const [adminJson, comercialJson, operacionalJson, dpJson, impactoJson] = await Promise.all([
       loadSheet(GID_ADMINISTRATIVO),
       loadSheet(GID_COMERCIAL),
       loadSheet(GID_OPERACIONAL),
-      loadSheet(GID_DP)
+      loadSheet(GID_DP),
+      loadSheet(GID_IMPACTO)
     ]);
     lastAdminRows = adminJson.table.rows;
     lastComercialRows = comercialJson.table.rows;
     lastOperacionalRows = operacionalJson.table.rows;
     lastDPRows = dpJson.table.rows;
+    lastImpactoRows = impactoJson.table.rows;
     renderAdministrativo(lastAdminRows);
     renderComercial(lastComercialRows);
     renderOperacional(lastOperacionalRows);
     renderDP(lastDPRows);
+    renderImpacto(lastImpactoRows);
     document.getElementById('errorBanner').style.display = 'none';
     const now = new Date();
     document.getElementById('lastUpdate').textContent = 'Atualizado às ' + now.toLocaleTimeString('pt-BR');
