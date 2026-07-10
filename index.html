@@ -122,7 +122,7 @@
 <div class="tabs">
   <div class="tab active" id="tabbtn-administrativo" onclick="showTab('administrativo')">Administrativo</div>
   <div class="tab" id="tabbtn-comercial" onclick="showTab('comercial')">Comercial</div>
-  <div class="tab disabled">Operacional (em breve)</div>
+  <div class="tab" id="tabbtn-operacional" onclick="showTab('operacional')">Operacional</div>
   <div class="tab disabled">Departamento Pessoal (em breve)</div>
   <div class="tab disabled">Impacto (em breve)</div>
 </div>
@@ -269,6 +269,87 @@
 
 </div>
 
+<!-- ==================== OPERACIONAL ==================== -->
+<div class="tab-panel" id="tab-operacional">
+
+<!-- INDICADOR 1 -->
+<section class="indicator">
+  <div class="ind-header">
+    <h2>1. Bombonas Operadas (por Colaborador e Dia Trabalhado)</h2>
+    <span class="badge">Indicador 1 · 2026 · passe o mouse para ver volume, colaboradores e dias</span>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="label">Total anual</div><div class="value" id="o-kpi1-total">—</div></div>
+  </div>
+  <div class="charts">
+    <div class="chart-box"><h3>Mês a mês (bombonas / colaborador / dia)</h3><div class="chart-wrap"><canvas id="o-chart1-mensal"></canvas></div></div>
+    <div class="chart-box"><h3>Média trimestral</h3><div class="chart-wrap"><canvas id="o-chart1-trimestral"></canvas></div></div>
+  </div>
+</section>
+
+<!-- INDICADOR 2 -->
+<section class="indicator">
+  <div class="ind-header">
+    <h2>2. Bombonas Operadas (por Rota Realizada)</h2>
+    <span class="badge">Indicador 2 · 2026</span>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="label">Total anual</div><div class="value" id="o-kpi2-total">—</div></div>
+  </div>
+  <div class="charts">
+    <div class="chart-box"><h3>Mês a mês</h3><div class="chart-wrap"><canvas id="o-chart2-mensal"></canvas></div></div>
+    <div class="chart-box"><h3>Média trimestral</h3><div class="chart-wrap"><canvas id="o-chart2-trimestral"></canvas></div></div>
+  </div>
+</section>
+
+<!-- INDICADOR 3 -->
+<section class="indicator">
+  <div class="ind-header">
+    <h2>3. Custo Equipe de Transbordo e Limpeza (por Tonelada Operada)</h2>
+    <span class="badge">Indicador 3 · 2026</span>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="label">Média anual</div><div class="value" id="o-kpi3-total">—</div></div>
+  </div>
+  <div class="charts">
+    <div class="chart-box"><h3>Mês a mês (R$/tonelada)</h3><div class="chart-wrap"><canvas id="o-chart3-mensal"></canvas></div></div>
+    <div class="chart-box"><h3>Média trimestral</h3><div class="chart-wrap"><canvas id="o-chart3-trimestral"></canvas></div></div>
+  </div>
+</section>
+
+<!-- INDICADOR 4 -->
+<section class="indicator">
+  <div class="ind-header">
+    <h2>4. Custo Coleta de Resíduos (por Tonelada Operada) · Unidade BH</h2>
+    <span class="badge">Indicador 4 · 2026</span>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="label">Média anual</div><div class="value" id="o-kpi4-total">—</div></div>
+  </div>
+  <div class="charts">
+    <div class="chart-box"><h3>Mês a mês (R$/tonelada)</h3><div class="chart-wrap"><canvas id="o-chart4-mensal"></canvas></div></div>
+    <div class="chart-box"><h3>Média trimestral</h3><div class="chart-wrap"><canvas id="o-chart4-trimestral"></canvas></div></div>
+  </div>
+</section>
+
+<!-- INDICADOR 5 -->
+<section class="indicator">
+  <div class="ind-header">
+    <h2>5. Resultado Operacional</h2>
+    <span class="badge">Indicador 5 · 2026</span>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="label">Média anual</div><div class="value" id="o-kpi5-total">—</div></div>
+    <div class="kpi"><div class="label">Meta anual</div><div class="value" id="o-kpi5-meta">—</div></div>
+  </div>
+  <div class="charts">
+    <div class="chart-box"><h3>Mês a mês (com meta)</h3><div class="chart-wrap"><canvas id="o-chart5-mensal"></canvas></div></div>
+    <div class="chart-box"><h3>Média trimestral</h3><div class="chart-wrap"><canvas id="o-chart5-trimestral"></canvas></div></div>
+  </div>
+</section>
+
+</div>
+
 <footer>Dados vindos automaticamente do Google Sheets · atualização a cada 20 minutos</footer>
 </div>
 
@@ -276,6 +357,7 @@
 const SHEET_ID = '1Fm8h4423iAFd3t-htj0Z62XM6oEnJs15Zp-iEHzdI3I';
 const GID_ADMINISTRATIVO = '526094978';
 const GID_COMERCIAL = '19455487';
+const GID_OPERACIONAL = '2037495349';
 const REFRESH_MS = 20 * 60 * 1000;
 
 const MESES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
@@ -288,10 +370,16 @@ let nextRefreshAt = null;
 let chartType = 'line';
 let lastAdminRows = null;
 let lastComercialRows = null;
+let lastOperacionalRows = null;
 
 function fmtBRL(n){
   if (n === null || n === undefined || isNaN(n)) return 'R$ 0,00';
   return n.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+}
+
+function fmtPct(n){
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  return Math.round(n * 100) + '%';
 }
 
 function cellVal(row, idx){
@@ -314,6 +402,7 @@ function toggleChartType(){
   document.getElementById('chartTypeBtn').textContent = chartType === 'line' ? 'Ver em barras' : 'Ver em linha';
   if (lastAdminRows) renderAdministrativo(lastAdminRows);
   if (lastComercialRows) renderComercial(lastComercialRows);
+  if (lastOperacionalRows) renderOperacional(lastOperacionalRows);
 }
 
 // ---- JSONP loader (avoids CORS entirely) ----
@@ -602,6 +691,65 @@ function parseComercial4(rows, bounds){
   return { values, detalhes, totalAnual, ranking };
 }
 
+// ---- Parse each Operacional indicator ----
+// Indicador 1 tem colunas extras (Volume/Colaboradores/Dias) antes do Resultado.
+function parseOperacional1(rows, bounds){
+  const [s,e] = bounds['1'];
+  const monthly = groupByMonth(rows, s, e, [5,6,7,8,9]);
+  const values = {}, detalhes = {};
+  MESES.forEach(m => {
+    const ent = monthly[m] && monthly[m][0];
+    values[m] = ent ? parseNumberFlexible(ent[3]) : null;
+    detalhes[m] = ent ? {
+      volume: parseNumberFlexible(ent[0]),
+      colaboradores: parseNumberFlexible(ent[1]),
+      dias: parseNumberFlexible(ent[2])
+    } : null;
+  });
+  const totalAnual = parseNumberFlexible(firstNonNull(monthly, 4)) ?? 0;
+  return { values, detalhes, totalAnual, quarterAvg: quarterAverage(values) };
+}
+
+// Indicadores 2-5 do Operacional compartilham o mesmo layout simples:
+// Ano, Mês, Resultado, Total/Média Anual, Trimestre, Média Trimestral.
+function parseOperacional2(rows, bounds){
+  const [s,e] = bounds['2'];
+  const monthly = groupByMonth(rows, s, e, [5,6]);
+  const values = {};
+  MESES.forEach(m => { const ent = monthly[m]; values[m] = ent && ent[0] ? parseNumberFlexible(ent[0][0]) : null; });
+  const totalAnual = parseNumberFlexible(firstNonNull(monthly, 1)) ?? 0;
+  return { values, totalAnual, quarterAvg: quarterAverage(values) };
+}
+
+function parseOperacional3(rows, bounds){
+  const [s,e] = bounds['3'];
+  const monthly = groupByMonth(rows, s, e, [5,6]);
+  const values = {};
+  MESES.forEach(m => { const ent = monthly[m]; values[m] = ent && ent[0] ? parseNumberFlexible(ent[0][0]) : null; });
+  const mediaAnual = parseNumberFlexible(firstNonNull(monthly, 1)) ?? 0;
+  return { values, mediaAnual, quarterAvg: quarterAverage(values) };
+}
+
+function parseOperacional4(rows, bounds){
+  const [s,e] = bounds['4'];
+  const monthly = groupByMonth(rows, s, e, [5,6]);
+  const values = {};
+  MESES.forEach(m => { const ent = monthly[m]; values[m] = ent && ent[0] ? parseNumberFlexible(ent[0][0]) : null; });
+  const mediaAnual = parseNumberFlexible(firstNonNull(monthly, 1)) ?? 0;
+  return { values, mediaAnual, quarterAvg: quarterAverage(values) };
+}
+
+function parseOperacional5(rows, bounds){
+  const [s,e] = bounds['5'];
+  const monthly = groupByMonth(rows, s, e, [5,6]);
+  const values = {};
+  MESES.forEach(m => { const ent = monthly[m]; values[m] = ent && ent[0] ? parseNumberFlexible(ent[0][0]) : null; });
+  const mediaAnual = parseNumberFlexible(firstNonNull(monthly, 1)) ?? 0;
+  // A meta anual fica numa linha oculta na planilha (não aparece via API) — usa valor fixo de 19%.
+  const meta = findMeta(rows, s, e, 19) / 100;
+  return { values, mediaAnual, meta, quarterAvg: quarterAverage(values) };
+}
+
 // ---- Chart helpers ----
 function destroyChart(id){ if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
 
@@ -624,6 +772,15 @@ function renderChart(canvasId, labels, data, opts = {}){
       label: 'Meta', type: 'line', data: labels.map(() => opts.meta),
       borderColor: '#B87333', borderDash: [6,4], pointRadius: 0, borderWidth: 2, fill: false
     });
+  }
+  const allVals = data.filter(v => v !== null && v !== undefined && !isNaN(v));
+  if (opts.meta !== undefined && opts.meta !== null) allVals.push(opts.meta);
+  let yMax = undefined;
+  if (allVals.length && type === 'line'){
+    const dMax = Math.max(...allVals);
+    const dMin = Math.min(...allVals, 0);
+    const pad = Math.max((dMax - dMin) * 0.15, dMax * 0.05, 1);
+    yMax = Math.ceil(dMax + pad);
   }
   charts[canvasId] = new Chart(ctx, {
     type: type,
@@ -649,10 +806,11 @@ function renderChart(canvasId, labels, data, opts = {}){
       scales: {
         x: { ticks: { color: '#5B7070', font: { family: 'Sora' } }, grid: { color: '#E3E7E1' } },
         y: {
-          ticks: { color: '#5B7070', font: { family: 'Sora' }, display: true, maxTicksLimit: 7 },
+          ticks: { color: '#5B7070', font: { family: 'Sora' }, display: true, maxTicksLimit: 7, precision: 0 },
           grid: { color: '#E3E7E1' },
-          beginAtZero: type === 'bar',
-          grace: type === 'line' ? '15%' : 0
+          min: 0,
+          max: yMax,
+          beginAtZero: true
         }
       }
     }
@@ -825,17 +983,84 @@ function renderComercial(rows){
   renderRankingChart('c-chart4-ranking', c4.ranking, '#B87333');
 }
 
+// ---- Render: Operacional ----
+function renderOperacional(rows){
+  const bounds = findBlocks(rows);
+  if (!bounds['1'] || !bounds['2'] || !bounds['3'] || !bounds['4'] || !bounds['5']) {
+    throw new Error('Não foi possível localizar todos os indicadores do Operacional (estrutura pode ter mudado).');
+  }
+
+  const o1 = parseOperacional1(rows, bounds);
+  document.getElementById('o-kpi1-total').textContent = o1.totalAnual;
+  renderChart('o-chart1-mensal', MESES_ABREV, MESES.map(m => o1.values[m]), {
+    color: '#1F4242', seriesLabel: 'Bombonas/colaborador/dia',
+    tooltipCallbacks: { label: (ctx) => {
+      const mes = MESES[ctx.dataIndex];
+      const det = o1.detalhes[mes];
+      const principal = 'Resultado: ' + ctx.parsed.y;
+      if (!det) return principal;
+      return [principal, 'Volume B50L: ' + det.volume, 'Colaboradores: ' + det.colaboradores, 'Dias trabalhados: ' + det.dias];
+    } }
+  });
+  renderChart('o-chart1-trimestral', ['Q1','Q2','Q3','Q4'], o1.quarterAvg.map(v => v !== null ? Math.round(v*10)/10 : null), { color: '#8FC93E', seriesLabel: 'Média' });
+
+  const o2 = parseOperacional2(rows, bounds);
+  document.getElementById('o-kpi2-total').textContent = o2.totalAnual;
+  renderChart('o-chart2-mensal', MESES_ABREV, MESES.map(m => o2.values[m]), { color: '#3E6B6B', seriesLabel: 'Bombonas (rotas)' });
+  renderChart('o-chart2-trimestral', ['Q1','Q2','Q3','Q4'], o2.quarterAvg.map(v => v !== null ? Math.round(v*10)/10 : null), { color: '#8FC93E', seriesLabel: 'Média' });
+
+  const o3 = parseOperacional3(rows, bounds);
+  document.getElementById('o-kpi3-total').textContent = fmtBRL(o3.mediaAnual);
+  renderChart('o-chart3-mensal', MESES_ABREV, MESES.map(m => o3.values[m]), {
+    color: '#773F3F', seriesLabel: 'Custo/tonelada',
+    tooltipCallbacks: { label: (ctx) => fmtBRL(ctx.parsed.y) }
+  });
+  renderChart('o-chart3-trimestral', ['Q1','Q2','Q3','Q4'], o3.quarterAvg, {
+    color: '#9C6262', seriesLabel: 'Média',
+    tooltipCallbacks: { label: (ctx) => fmtBRL(ctx.parsed.y) }
+  });
+
+  const o4 = parseOperacional4(rows, bounds);
+  document.getElementById('o-kpi4-total').textContent = fmtBRL(o4.mediaAnual);
+  renderChart('o-chart4-mensal', MESES_ABREV, MESES.map(m => o4.values[m]), {
+    color: '#B87333', seriesLabel: 'Custo/tonelada',
+    tooltipCallbacks: { label: (ctx) => fmtBRL(ctx.parsed.y) }
+  });
+  renderChart('o-chart4-trimestral', ['Q1','Q2','Q3','Q4'], o4.quarterAvg, {
+    color: '#8FA83E', seriesLabel: 'Média',
+    tooltipCallbacks: { label: (ctx) => fmtBRL(ctx.parsed.y) }
+  });
+
+  const o5 = parseOperacional5(rows, bounds);
+  document.getElementById('o-kpi5-total').textContent = fmtPct(o5.mediaAnual);
+  document.getElementById('o-kpi5-meta').textContent = fmtPct(o5.meta);
+  renderChart('o-chart5-mensal', MESES_ABREV, MESES.map(m => o5.values[m] !== null ? Math.round(o5.values[m]*1000)/10 : null), {
+    color: '#1F4242', seriesLabel: 'Resultado', meta: Math.round(o5.meta*1000)/10,
+    tooltipCallbacks: { label: (ctx) => {
+      if (ctx.dataset.label === 'Meta') return 'Meta: ' + ctx.parsed.y + '%';
+      return 'Resultado: ' + ctx.parsed.y + '%';
+    } }
+  });
+  renderChart('o-chart5-trimestral', ['Q1','Q2','Q3','Q4'], o5.quarterAvg.map(v => v !== null ? Math.round(v*1000)/10 : null), {
+    color: '#8FC93E', seriesLabel: 'Média',
+    tooltipCallbacks: { label: (ctx) => ctx.parsed.y + '%' }
+  });
+}
+
 // ---- Refresh cycle ----
 async function refresh(){
   try{
-    const [adminJson, comercialJson] = await Promise.all([
+    const [adminJson, comercialJson, operacionalJson] = await Promise.all([
       loadSheet(GID_ADMINISTRATIVO),
-      loadSheet(GID_COMERCIAL)
+      loadSheet(GID_COMERCIAL),
+      loadSheet(GID_OPERACIONAL)
     ]);
     lastAdminRows = adminJson.table.rows;
     lastComercialRows = comercialJson.table.rows;
+    lastOperacionalRows = operacionalJson.table.rows;
     renderAdministrativo(lastAdminRows);
     renderComercial(lastComercialRows);
+    renderOperacional(lastOperacionalRows);
     document.getElementById('errorBanner').style.display = 'none';
     const now = new Date();
     document.getElementById('lastUpdate').textContent = 'Atualizado às ' + now.toLocaleTimeString('pt-BR');
