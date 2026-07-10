@@ -537,7 +537,7 @@ function parseComercial2(rows, bounds){
 // rótulo ocupa uma coluna, mas o valor pode cair na coluna vizinha vazia).
 // Por isso cada coluna aceita mais de um índice candidato.
 const EQUIP_COLS = [
-  {idxs:[7], label:'Balde P'}, {idxs:[8,9], label:'Balde G'}, {idxs:[10], label:'Bombona 80L'},
+  {idxs:[7], label:'Balde P'}, {idxs:[8,9], label:'Bombona 50L'}, {idxs:[10], label:'Bombona 80L'},
   {idxs:[11], label:'BigBag 1000L'}, {idxs:[12], label:'Contentor 80L'}, {idxs:[13], label:'Contentor 120L'},
   {idxs:[14], label:'Contentor 240L'}, {idxs:[15], label:'Contentor 700L'}, {idxs:[16], label:'Pedaleira'}
 ];
@@ -648,7 +648,12 @@ function renderChart(canvasId, labels, data, opts = {}){
       },
       scales: {
         x: { ticks: { color: '#5B7070', font: { family: 'Sora' } }, grid: { color: '#E3E7E1' } },
-        y: { ticks: { color: '#5B7070', font: { family: 'Sora' } }, grid: { color: '#E3E7E1' }, beginAtZero: true }
+        y: {
+          ticks: { color: '#5B7070', font: { family: 'Sora' }, display: true, maxTicksLimit: 7 },
+          grid: { color: '#E3E7E1' },
+          beginAtZero: type === 'bar',
+          grace: type === 'line' ? '15%' : 0
+        }
       }
     }
   });
